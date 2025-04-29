@@ -1,4 +1,4 @@
-export default [
+const galleryItems = [
   {
     preview:
       'https://cdn.pixabay.com/photo/2019/05/14/16/43/himilayan-blue-poppy-4202825__340.jpg',
@@ -63,3 +63,52 @@ export default [
     description: 'Lighthouse Coast Sea',
   },
 ];
+
+// Створення розмітки галереї
+const galleryContainer = document.querySelector('.js-gallery');
+const galleryMarkup = galleryItems
+  .map(
+    ({ preview, original, description }) => `
+<li class="gallery__item">
+  <a class="gallery__link" href="${original}">
+    <img
+      class="gallery__image"
+      src="${preview}"
+      data-source="${original}"
+      alt="${description}"
+    />
+  </a>
+</li>`
+  )
+  .join('');
+
+galleryContainer.innerHTML = galleryMarkup;
+
+// Обробка кліку
+galleryContainer.addEventListener('click', onGalleryClick);
+
+function onGalleryClick(e) {
+  e.preventDefault();
+
+  const isImage = e.target.classList.contains('gallery__image');
+  if (!isImage) return;
+
+  const imageSrc = e.target.dataset.source;
+  const imageAlt = e.target.alt;
+
+  const instance = basicLightbox.create(
+    `<img src="${imageSrc}" alt="${imageAlt}" width="800" height="600">`
+  );
+
+  instance.show();
+
+  // Закриття по Escape
+  const onEscKey = (e) => {
+    if (e.code === 'Escape') {
+      instance.close();
+      window.removeEventListener('keydown', onEscKey);
+    }
+  };
+
+  window.addEventListener('keydown', onEscKey);
+}
